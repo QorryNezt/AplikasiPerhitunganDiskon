@@ -5,7 +5,7 @@
 
 /**
  *
- * @author Asus
+ * @author Sayyida Qurrata A'yunin (2210010331)
  */
 public class AplikasiDiskonForm extends javax.swing.JFrame {
 

@@ -1,4 +1,6 @@
 
+import java.awt.Color;
+import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -18,12 +20,14 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
      */
     public AplikasiDiskonForm() {
         initComponents();
+        Color col = new Color(255,204,255); //Mengganti warna BG Lilac :D
+        getContentPane().setBackground(col); //Memanggil konten utk menampilkan BG Lilac
         //Membuat Total harga belanjaan bisa di highlight tapi tidak editable
         txtTotal.setFocusable(true);
     }
-     private void addRowToTable(String namaBarang, int jumlah, double hargaPerSatuan, double total) {
-    DefaultTableModel model = (DefaultTableModel) tblBarang.getModel();
-    model.addRow(new Object[]{namaBarang, jumlah, hargaPerSatuan, total});
+     private void addRowToTable(String namaBarang, int jumlah, double hargaPerSatuan, double total, String diskonTb) {
+        DefaultTableModel model = (DefaultTableModel) tblBarang.getModel();
+        model.insertRow(0, new Object[]{namaBarang, jumlah, hargaPerSatuan, total, diskonTb});
 }      
      private void Hapus(){
          //Method untuk membersihkan text field
@@ -70,6 +74,7 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
 
         jPanel1.setLayout(new java.awt.BorderLayout());
 
+        jLabel1.setBackground(new java.awt.Color(255, 204, 255));
         jLabel1.setFont(new java.awt.Font("Bahnschrift", 0, 24)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Aplikasi Penghitung Diskon");
@@ -86,26 +91,38 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
         tblBarang.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
         tblBarang.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "Nama Barang", "Jumlah", "Harga / Pcs", "Total"
+                "Nama Barang", "Jml", "Harga / Pcs", "Total", "Diskon"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Integer.class, java.lang.Double.class, java.lang.Double.class
+                java.lang.String.class, java.lang.Integer.class, java.lang.Double.class, java.lang.Double.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
         });
         jScrollPane2.setViewportView(tblBarang);
         if (tblBarang.getColumnModel().getColumnCount() > 0) {
-            tblBarang.getColumnModel().getColumn(1).setResizable(false);
+            tblBarang.getColumnModel().getColumn(0).setMinWidth(125);
+            tblBarang.getColumnModel().getColumn(0).setMaxWidth(125);
+            tblBarang.getColumnModel().getColumn(1).setMinWidth(40);
+            tblBarang.getColumnModel().getColumn(1).setMaxWidth(40);
+            tblBarang.getColumnModel().getColumn(4).setMinWidth(60);
+            tblBarang.getColumnModel().getColumn(4).setMaxWidth(60);
         }
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
@@ -115,8 +132,8 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -160,6 +177,11 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
         });
 
         txtJumlah.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
+        txtJumlah.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtJumlahKeyTyped(evt);
+            }
+        });
 
         txtHargaPcs.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
         txtHargaPcs.addActionListener(new java.awt.event.ActionListener() {
@@ -167,7 +189,13 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
                 txtHargaPcsActionPerformed(evt);
             }
         });
+        txtHargaPcs.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtHargaPcsKeyTyped(evt);
+            }
+        });
 
+        txtDiskon.setEditable(false);
         txtDiskon.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
 
         btnHitung.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
@@ -195,6 +223,7 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
         });
 
         txtTotal.setEditable(false);
+        txtTotal.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
         txtTotal.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 txtTotalFocusGained(evt);
@@ -216,49 +245,55 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtTotal, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                        .addComponent(jLabel8)
-                        .addGap(49, 49, 49)))
-                .addGap(92, 92, 92))
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(62, 62, 62)
+                        .addGap(15, 15, 15)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(btnClearAll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
-                                    .addComponent(btnHitung)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(btnHapus)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(btnKeluar)))))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(36, 36, 36)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtHargaPcs, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel5)
-                            .addComponent(txtNamaBarang, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3))
-                        .addGap(65, 65, 65)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtDiskon, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel6)
-                            .addComponent(txtJumlah))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addComponent(txtNamaBarang, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(txtHargaPcs, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jLabel3))
+                                .addGap(35, 35, 35)
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel6)
+                                    .addComponent(txtDiskon, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel4)))))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(34, 34, 34)
+                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(34, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                        .addComponent(jLabel8)
+                        .addGap(122, 122, 122))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                        .addComponent(txtTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(72, 72, 72))))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(btnClearAll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
+                        .addComponent(btnHitung)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnHapus)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnKeluar)))
+                .addGap(24, 24, 24))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(26, 26, 26)
+                .addGap(35, 35, 35)
                 .addComponent(jLabel7)
-                .addGap(27, 27, 27)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(jLabel4))
@@ -269,12 +304,13 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(jLabel5)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel6))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(txtHargaPcs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(30, 30, 30)
                         .addComponent(txtDiskon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel8)
@@ -298,7 +334,7 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -328,29 +364,35 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
         // Memulai Perhitungan Belanjaan
         try {
          // Mengambil nilai dari field Jumlah dan harga per barang
+            String namaBarang = txtNamaBarang.getText();
             int jumlah = Integer.parseInt(txtJumlah.getText());
             double hargaPerSatuan = Double.parseDouble(txtHargaPcs.getText());
             double diskon = 0;
+            
 
             // menghitung jumlah keseluruhan sebelum menambahkan diskon
             double total = jumlah * hargaPerSatuan;
 
-            // Apply discount based on total purchase value
+            // Logika simple percabangan untuk diskon berdasarkan harga total belanja
             if (total >= 100000) {
-                diskon = 0.5; // 50% discount
+                diskon = 0.5; // 50% diskon jika pembelian lebih dari = 100K
             } else if (total >= 75000) {
-                diskon = 0.35; // 35% discount
+                diskon = 0.35; // 35% diskon jika pembelian lebih dari = 75K
             } else if (total >= 45000) {
-                diskon = 0.1; // 10% discount
+                diskon = 0.1; // 10% diskon jika pembelian lebih dari = 45K
             }
 
-            // Calculate discounted total
+            // Menghitung total belanjaan dengan diskon
             double diskonTotal = total * (1 - diskon);
             txtTotal.setText(String.format("%.2f", diskonTotal));
-
-            // Display discount information (optional)
-            txtDiskon.setText("Diskon: " + (diskon * 100) + "%");
-
+            
+            // Menampilkan diskon yang di dapat
+            txtDiskon.setText((diskon * 100) + "%");
+            String diskonTb = txtDiskon.getText();
+            
+            // Memasukkan Isi di dalam 
+            addRowToTable(namaBarang, jumlah, hargaPerSatuan, diskonTotal, diskonTb);
+            
     } catch (NumberFormatException e) { //Jika terjadi kesalahan maka muncul error seperti dibawah
         JOptionPane.showMessageDialog(this, "Mohon isi jumlah dan Harga/pcs dengan angka saja", "Masukan Error", JOptionPane.ERROR_MESSAGE);
     }
@@ -371,7 +413,8 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
 
     private void btnClearAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearAllActionPerformed
         Hapus(); //Method untuk membersihkan text field
-        tblBarang.clearSelection(); //Menghapus isi table
+        DefaultTableModel model = (DefaultTableModel) tblBarang.getModel();
+        model.setRowCount(0); // Clear all rows in the table
     }//GEN-LAST:event_btnClearAllActionPerformed
 
     private void txtNamaBarangFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtNamaBarangFocusGained
@@ -382,6 +425,28 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
     private void txtTotalFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtTotalFocusGained
         txtTotal.selectAll(); //Meng-highlight txtTotal jika di klik field-nya.
     }//GEN-LAST:event_txtTotalFocusGained
+
+    private void txtJumlahKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtJumlahKeyTyped
+        // Handle Exception jika user menekan tombol bukan numerik 
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != KeyEvent.VK_BACK_SPACE && c != KeyEvent.VK_DELETE) {
+            // Consume event agar mencegah masukan tidak numerik
+            evt.consume();
+            // Menampilkan Pesan Peringatan
+            JOptionPane.showMessageDialog(this, "Hanya menerima inputan angka saja!", "Invalid input >x<", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_txtJumlahKeyTyped
+
+    private void txtHargaPcsKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtHargaPcsKeyTyped
+        // Handle Exception jika user menekan tombol bukan numerik 
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != KeyEvent.VK_BACK_SPACE && c != KeyEvent.VK_DELETE) {
+            // Consume event agar mencegah masukan tidak numerik
+            evt.consume();
+            // Menampilkan Pesan Peringatan
+            JOptionPane.showMessageDialog(this, "Hanya menerima inputan angka saja!", "Invalid input >x<", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_txtHargaPcsKeyTyped
 
     /**
      * @param args the command line arguments

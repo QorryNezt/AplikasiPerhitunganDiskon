@@ -8,6 +8,7 @@
  * @author Sayyida Qurrata A'yunin (2210010331)
  */
 public class AplikasiDiskonHelper {
+        //Logika perhitungan aplikasi diskon. Terpisah agar rapi ^u^
         public static double calculateTotal(double hargaPerUnit, int qty, double diskon) {
         double total = hargaPerUnit * qty;
         double jmlDiskon = total * (diskon / 100);

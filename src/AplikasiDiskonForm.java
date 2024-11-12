@@ -18,11 +18,21 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
      */
     public AplikasiDiskonForm() {
         initComponents();
+        //Membuat Total harga belanjaan bisa di highlight tapi tidak editable
+        txtTotal.setFocusable(true);
     }
      private void addRowToTable(String namaBarang, int jumlah, double hargaPerSatuan, double total) {
-    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+    DefaultTableModel model = (DefaultTableModel) tblBarang.getModel();
     model.addRow(new Object[]{namaBarang, jumlah, hargaPerSatuan, total});
-}       
+}      
+     private void Hapus(){
+         //Method untuk membersihkan text field
+        txtNamaBarang.setText("");
+        txtJumlah.setText("");
+        txtHargaPcs.setText("");
+        txtDiskon.setText("");
+        txtTotal.setText("");
+     }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -38,7 +48,7 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblBarang = new javax.swing.JTable();
         jPanel4 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -73,8 +83,8 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
         jLabel2.setText("List Barang Belanjaan");
         jLabel2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
-        jTable1.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblBarang.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
+        tblBarang.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -93,9 +103,9 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        jScrollPane2.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(1).setResizable(false);
+        jScrollPane2.setViewportView(tblBarang);
+        if (tblBarang.getColumnModel().getColumnCount() > 0) {
+            tblBarang.getColumnModel().getColumn(1).setResizable(false);
         }
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
@@ -138,6 +148,11 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
         jLabel6.setText("Diskon");
 
         txtNamaBarang.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
+        txtNamaBarang.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txtNamaBarangFocusGained(evt);
+            }
+        });
         txtNamaBarang.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtNamaBarangActionPerformed(evt);
@@ -165,15 +180,37 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
 
         btnHapus.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
         btnHapus.setText("Hapus");
+        btnHapus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHapusActionPerformed(evt);
+            }
+        });
 
         btnKeluar.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
         btnKeluar.setText("Keluar");
+        btnKeluar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnKeluarActionPerformed(evt);
+            }
+        });
+
+        txtTotal.setEditable(false);
+        txtTotal.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txtTotalFocusGained(evt);
+            }
+        });
 
         jLabel8.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
         jLabel8.setText("Total Harga");
 
         btnClearAll.setFont(new java.awt.Font("Bahnschrift", 0, 14)); // NOI18N
         btnClearAll.setText("Hapus Semua Termasuk Table");
+        btnClearAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnClearAllActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -288,25 +325,63 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
     }//GEN-LAST:event_txtHargaPcsActionPerformed
 
     private void btnHitungActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHitungActionPerformed
+        // Memulai Perhitungan Belanjaan
         try {
-        String namaBarang = txtNamaBarang.getText();
-        int jumlah = Integer.parseInt(txtJumlah.getText());
-        double hargaPerSatuan = Double.parseDouble(txtHargaPcs.getText());
-        double diskon = Double.parseDouble(txtDiskon.getText());
+         // Mengambil nilai dari field Jumlah dan harga per barang
+            int jumlah = Integer.parseInt(txtJumlah.getText());
+            double hargaPerSatuan = Double.parseDouble(txtHargaPcs.getText());
+            double diskon = 0;
 
-        // Calculate total after discount
-        double total = AplikasiDiskonHelper.calculateTotal(hargaPerSatuan, jumlah, diskon);
-        
-        // Display total in the Total Harga field
-        txtTotal.setText(String.format("%.2f", total));
+            // menghitung jumlah keseluruhan sebelum menambahkan diskon
+            double total = jumlah * hargaPerSatuan;
 
-        // Add the result to the table
-        addRowToTable(namaBarang, jumlah, hargaPerSatuan, total);
+            // Apply discount based on total purchase value
+            if (total >= 100000) {
+                diskon = 0.5; // 50% discount
+            } else if (total >= 75000) {
+                diskon = 0.35; // 35% discount
+            } else if (total >= 45000) {
+                diskon = 0.1; // 10% discount
+            }
 
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "Please enter valid numbers", "Input Error", JOptionPane.ERROR_MESSAGE);
+            // Calculate discounted total
+            double diskonTotal = total * (1 - diskon);
+            txtTotal.setText(String.format("%.2f", diskonTotal));
+
+            // Display discount information (optional)
+            txtDiskon.setText("Diskon: " + (diskon * 100) + "%");
+
+    } catch (NumberFormatException e) { //Jika terjadi kesalahan maka muncul error seperti dibawah
+        JOptionPane.showMessageDialog(this, "Mohon isi jumlah dan Harga/pcs dengan angka saja", "Masukan Error", JOptionPane.ERROR_MESSAGE);
     }
     }//GEN-LAST:event_btnHitungActionPerformed
+
+    private void btnKeluarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKeluarActionPerformed
+        // Fungsi button Keluar atau Quit. Sebelum menutup program akan ada konfirmasi terdahulu.
+        int response = JOptionPane.showConfirmDialog(this, "Apakah anda yakin ingin keluar?", "Konfirmasi Keluar",
+            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (response == JOptionPane.YES_OPTION) {
+            System.exit(0);
+    }
+    }//GEN-LAST:event_btnKeluarActionPerformed
+
+    private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
+        Hapus(); //Method untuk membersihkan text field
+    }//GEN-LAST:event_btnHapusActionPerformed
+
+    private void btnClearAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearAllActionPerformed
+        Hapus(); //Method untuk membersihkan text field
+        tblBarang.clearSelection(); //Menghapus isi table
+    }//GEN-LAST:event_btnClearAllActionPerformed
+
+    private void txtNamaBarangFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtNamaBarangFocusGained
+        //Method untuk membersihkan text field jika txtNamaBarang di highlight atau di klik
+        Hapus();
+    }//GEN-LAST:event_txtNamaBarangFocusGained
+
+    private void txtTotalFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtTotalFocusGained
+        txtTotal.selectAll(); //Meng-highlight txtTotal jika di klik field-nya.
+    }//GEN-LAST:event_txtTotalFocusGained
 
     /**
      * @param args the command line arguments
@@ -361,7 +436,7 @@ public class AplikasiDiskonForm extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JTable tblBarang;
     private javax.swing.JTextField txtDiskon;
     private javax.swing.JTextField txtHargaPcs;
     private javax.swing.JTextField txtJumlah;
